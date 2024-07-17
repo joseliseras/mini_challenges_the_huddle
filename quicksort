@@ -2,49 +2,54 @@ import random
 import time
 import tracemalloc
 
-def insertion_sort(arr, low, high):
-    for i in range(low + 1, high + 1):
-        key = arr[i]
+# Función de ordenamiento por inserción
+def ordenamiento_insercion(arr, bajo, alto):
+    for i in range(bajo + 1, alto + 1):
+        clave = arr[i]
         j = i - 1
-        while j >= low and arr[j] > key:
+        while j >= bajo and arr[j] > clave:
             arr[j + 1] = arr[j]
             j -= 1
-        arr[j + 1] = key
+        arr[j + 1] = clave
 
-def partition(arr, low, high):
-    pivot = arr[high]
-    i = low - 1
-    for j in range(low, high):
-        if arr[j] <= pivot:
+# Función de partición para QuickSort
+def particion(arr, bajo, alto):
+    pivote = arr[alto]
+    i = bajo - 1
+    for j in range(bajo, alto):
+        if arr[j] <= pivote:
             i += 1
             arr[i], arr[j] = arr[j], arr[i]
-    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    arr[i + 1], arr[alto] = arr[alto], arr[i + 1]
     return i + 1
 
-def quicksort_iterative(arr):
-    size = len(arr)
-    stack = [(0, size - 1)]
+# Función de QuickSort iterativo
+def quicksort_iterativo(arr):
+    tamano = len(arr)
+    pila = [(0, tamano - 1)]
     
-    while stack:
-        low, high = stack.pop()
+    while pila:
+        bajo, alto = pila.pop()
         
-        while low < high:
-            if high - low + 1 < 16:  # Cambiado de 10 a 16
-                insertion_sort(arr, low, high)
+        while bajo < alto:
+            if alto - bajo + 1 < 16:
+                ordenamiento_insercion(arr, bajo, alto)
                 break
             else:
-                pivot_index = partition(arr, low, high)
+                indice_pivote = particion(arr, bajo, alto)
                 
-                if pivot_index - low < high - pivot_index:
-                    stack.append((pivot_index + 1, high))
-                    high = pivot_index - 1
+                if indice_pivote - bajo < alto - indice_pivote:
+                    pila.append((indice_pivote + 1, alto))
+                    alto = indice_pivote - 1
                 else:
-                    stack.append((low, pivot_index - 1))
-                    low = pivot_index + 1
+                    pila.append((bajo, indice_pivote - 1))
+                    bajo = indice_pivote + 1
 
+# Generar conjuntos de datos
 def generar_datos(tamano):
     return [random.randint(0, 1000) for _ in range(tamano)]
 
+# Medir rendimiento (tiempo y memoria)
 def medir_rendimiento(funcion, datos):
     tracemalloc.start()
     tiempo_inicio = time.perf_counter()
@@ -54,12 +59,14 @@ def medir_rendimiento(funcion, datos):
     tracemalloc.stop()
     return tiempo_fin - tiempo_inicio, pico / 10**6
 
+# Verificar si el array está ordenado
 def verificar_ordenamiento(arr):
     return all(arr[i] <= arr[i+1] for i in range(len(arr)-1))
 
+# Probar y mostrar resultados
 def probar_y_mostrar(datos, tamano):
     datos_copia = datos.copy()
-    tiempo_ejecucion, memoria_pico = medir_rendimiento(quicksort_iterative, datos_copia)
+    tiempo_ejecucion, memoria_pico = medir_rendimiento(quicksort_iterativo, datos_copia)
     
     print(f"Conjunto {tamano} elementos:")
     
@@ -83,7 +90,6 @@ def probar_y_mostrar(datos, tamano):
 datos_pequenos = generar_datos(100)
 datos_medianos = generar_datos(300)
 datos_grandes = generar_datos(500)
-
 
 # Realizar pruebas
 print("Resultados de la Ordenación Rápida Optimizada:")
