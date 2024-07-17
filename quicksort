@@ -1,0 +1,92 @@
+import random
+import time
+import tracemalloc
+
+def insertion_sort(arr, low, high):
+    for i in range(low + 1, high + 1):
+        key = arr[i]
+        j = i - 1
+        while j >= low and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+
+def partition(arr, low, high):
+    pivot = arr[high]
+    i = low - 1
+    for j in range(low, high):
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    return i + 1
+
+def quicksort_iterative(arr):
+    size = len(arr)
+    stack = [(0, size - 1)]
+    
+    while stack:
+        low, high = stack.pop()
+        
+        while low < high:
+            if high - low + 1 < 16:  # Cambiado de 10 a 16
+                insertion_sort(arr, low, high)
+                break
+            else:
+                pivot_index = partition(arr, low, high)
+                
+                if pivot_index - low < high - pivot_index:
+                    stack.append((pivot_index + 1, high))
+                    high = pivot_index - 1
+                else:
+                    stack.append((low, pivot_index - 1))
+                    low = pivot_index + 1
+
+def generar_datos(tamano):
+    return [random.randint(0, 1000) for _ in range(tamano)]
+
+def medir_rendimiento(funcion, datos):
+    tracemalloc.start()
+    tiempo_inicio = time.perf_counter()
+    funcion(datos)
+    tiempo_fin = time.perf_counter()
+    _, pico = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    return tiempo_fin - tiempo_inicio, pico / 10**6
+
+def verificar_ordenamiento(arr):
+    return all(arr[i] <= arr[i+1] for i in range(len(arr)-1))
+
+def probar_y_mostrar(datos, tamano):
+    datos_copia = datos.copy()
+    tiempo_ejecucion, memoria_pico = medir_rendimiento(quicksort_iterative, datos_copia)
+    
+    print(f"Conjunto {tamano} elementos:")
+    
+    if tiempo_ejecucion < 1e-6:
+        tiempo_str = f"{tiempo_ejecucion*1e9:.2f} ns"
+    elif tiempo_ejecucion < 1e-3:
+        tiempo_str = f"{tiempo_ejecucion*1e6:.2f} µs"
+    elif tiempo_ejecucion < 1:
+        tiempo_str = f"{tiempo_ejecucion*1e3:.2f} ms"
+    else:
+        tiempo_str = f"{tiempo_ejecucion:.6f} s"
+    
+    print(f"Tiempo de Ejecución: {tiempo_str}")
+    print(f"Uso de Memoria: {memoria_pico:.6f} MB")
+    print(f"Correctamente ordenado: {verificar_ordenamiento(datos_copia)}")
+    print("Primeros 30 elementos ordenados:", datos_copia[:30])
+    print("Últimos 30 elementos ordenados:", datos_copia[-30:])
+    print()
+
+# Generar conjuntos de datos
+datos_pequenos = generar_datos(100)
+datos_medianos = generar_datos(300)
+datos_grandes = generar_datos(500)
+
+
+# Realizar pruebas
+print("Resultados de la Ordenación Rápida Optimizada:")
+probar_y_mostrar(datos_pequenos, "Pequeño (100)")
+probar_y_mostrar(datos_medianos, "Mediano (300)")
+probar_y_mostrar(datos_grandes, "Grande (500)")
