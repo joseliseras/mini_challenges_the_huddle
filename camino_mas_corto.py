@@ -21,7 +21,7 @@ def dijkstra(grafo, inicio, fin):
                 distancias[vecino] = distancia
                 predecesores[vecino] = nodo_actual
                 heapq.heappush(cola_prioridad, (distancia, vecino))
-
+##god
     camino = []
     nodo_actual = fin
     while nodo_actual is not None:
